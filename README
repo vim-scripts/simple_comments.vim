@@ -1,0 +1,9 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=2564
+
+This is a plugin to comment out or remove comments from
+lines in sourcecode using the comments in the commentsring
+variable. It is intended to be as simple as possible and can only
+handle the commenting or removal of comments from whole 
+lines.
+
+There are much more sofisticated comment scripts on vim.org, but I wanted something simple, so this script was created.
