@@ -1,139 +1,16 @@
-" Vimball Archiver by Charles E. Campbell, Jr., Ph.D.
-UseVimball
-finish
-doc/simple_comments.txt	[[[1
-121
-*simple_comments.txt*      simple_comments help                     2009-03-01
-==============================================================================
-1. Intro                                               *simple_comments-intro*
-
-   This is a plugin to comment out or remove comments from lines in sourcecode
-   using the |commentsring| variable. It is intended to be as simple as
-   possible and can only handle the commenting/uncommenting of whole lines.
-
-   Also, only the |commentstring| comments are handled, which may give
-   problems in languages such as C++ where both /**/ and // comments are
-   allowed.
-
-   For filetypes where the commentstring setting is incorrect it can be
-   changed by editing ftplugin/<filetype>.vim and adding a line such as
-
-        setlocal commentstring=/*\ %s\ */
-
-   This specifies a C comment.  Spaces in the |commentstring| setting must be
-   escaped. 
-
-==============================================================================
-2. Setup                                             *simple_comments-mapping*
-
-   The default key mappings for this plugin are:
-
-     <M-x> Add comments to the current line, a visual selection or range.
-     <M-z> Remove comments from current line, range or visual selection.
-
-   The mappings can be changed.  See |simple_comments-customizing|. 
-
-==============================================================================
-3. Customizing                                   *simple_comments-customizing*
-
-   The following variables can be used to customize this plugin:
-
-     |g:simple_comments_Comment|
-     |g:simple_comments_Remove|
-     |g:simple_comments_LeftPlaceHolder|
-     |g:simple_comments_RightPlaceHolder|
-     |g:simple_comments_SyntaxDictionary|
-
-------------------------------------------------------------------------------
-                                                   *g:simple_comments_Comment*
-
-   Specifies the mapping to use to comment out a line.  It can be changed using
-   the following:
-
-     let g:simple_comments_Comment = '<M-x>'
-
-------------------------------------------------------------------------------
-                                                    *g:simple_comments_Remove*
-
-   Specifies the mapping to use to remove comments from a line.  It can be
-   changed using the following:
-
-     let g:simple_comments_Remove = '<M-z>'
-
-------------------------------------------------------------------------------
-                                           *g:simple_comments_LeftPlaceHolder*
-                                          *g:simple_comments_RightPlaceHolder*
-
-   If the commentsring contains a left and a right side, adding comments to a
-   line that already contains comments will cause the original comments to be
-   replaced with the contents of these variables.  Example:
-   
-     Commenting the line
-   
-       /* int i = 0; */
-   
-     Will result in
-   
-       /* [> int i = 0; <] */
-   
-   When uncommenting the line again the original comments will be restored.
-   Default settings are:
-   
-     let g:simple_comments_LeftPlaceHolder = '[>'
-     let g:simple_comments_LeftPlaceHolder = '<]'
-   
-------------------------------------------------------------------------------
-                                         *g:simple_comments_SyntaxDictionary*
-
-   If editing a file that contains different languages using different types
-   of comments, the language specific comments can be specified in this
-   dictionary.
-   
-   The |commentstring| will be used as usual if there is no entry for the
-   current |filetype| in this dictionary.  Note that also comments for the
-   current filetype must be specified in the dictionary.
-   
-   A useful setting for editing html files:
-   
-       let www = {'html': '<!-- %s -->', 'css': '/* %s */', 'java': '// %s' } 
-       let g:simple_comments_SyntaxDictionary = {'html': www, 'xhtml':www }
-   
-   To decide which comments to use for a line the first lower case characters
-   of the |synIDattr| name is used.  To find out what these characters are the
-   following command can be used:
-
-      :echo synIDattr(synID(line("."), col("."), 0), "name")
-
-==============================================================================
-4. History
-
-v253  fix: Variable names and autocommands, vim7 needed
-      add: commenting according to syntax in current line to handle files with
-           different languages such as html + javascript.  User must specify a
-           Dictionary containing alternative languages.
-
-v249  fix: s:left and friends changed to b:left, ... doh!
-      fix: Preserve space on left hand side of the commented line and handle
-           commentstrings with space nicely
-      fix: renamed buffer variables to better names
-
-v243  Initial version
-
-==============================================================================
-Author: Anders Thøgersen <anders@bladre.dk>
-Version: $Id: simple_comments.txt 253 2009-03-03 03:52:03Z alt $
-==============================================================================
-vim:tw=78:ts=8:ft=help
-plugin/simple_comments.vim	[[[1
-163
-" author: Anders Thøgersen <anders@bladre.dk>
-" $Id: simple_comments.vim 253 2009-03-03 03:46:18Z alt $
 "
-" This is a very simple commenter that uses the commentstring variable.  There
-" are other much more advanced commenting scripts on vim.org, but I wanted
-" something very simple for my needs.
+" simple_comments.vim - Simple script for commenting and uncommenting lines
+"
+" Author:  Anders Thøgersen <anders [at] bladre.dk>
+" Version: 1.1
+" Date:    2009-03-03
+"
+" $Id: simple_comments.vim 266 2009-03-03 15:05:50Z alt $
 "
 " See simple_comments.txt for more info
+"
+" GetLatestVimScripts: 2654 1 :AutoInstall: simple_comments.vba.gz
+"
 
 if exists('loaded_simple_comments') || &cp
     finish
