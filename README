@@ -6,4 +6,8 @@ variable. It is intended to be as simple as possible and can only
 handle the commenting or removal of comments from whole 
 lines.
 
-There are much more sofisticated comment scripts on vim.org, but I wanted something simple, so this script was created.
+There are much more sofisticated comment scripts on vim.org, but 
+I wanted something simple, so this script was created.
+
+github: https://github.com/aklt/vim-simple_comments
+

@@ -2,23 +2,28 @@
 " simple_comments.vim - Simple script for commenting and uncommenting lines
 "
 " Author:  Anders Thøgersen <anders [at] bladre.dk>
-" Version: 1.1
-" Date:    2009-03-03
+" Version: 1.2
+" Date:    31-Dec-2010
 "
-" $Id: simple_comments.vim 266 2009-03-03 15:05:50Z alt $
+" $Id$
 "
 " See simple_comments.txt for more info
 "
 " GetLatestVimScripts: 2654 1 :AutoInstall: simple_comments.vba.gz
 "
+" TODO
+"       let g:simple_comments_CommentsInSameColumn
+"       Do Something when the filetype changes
 
 if exists('loaded_simple_comments') || &cp
     finish
 endif
+
 if v:version < 700
     echoerr "simple_comments: this plugin requires vim >= 7."
     finish
 endif
+
 let loaded_simple_comments = 1
 
 let s:savedCpo = &cpoptions
@@ -35,6 +40,7 @@ call s:AddVar('g:simple_comments_Comment', '<M-x>')
 call s:AddVar('g:simple_comments_Remove',  '<M-z>')
 call s:AddVar('g:simple_comments_LeftPlaceHolder',  '[>')
 call s:AddVar('g:simple_comments_RightPlaceHolder', '<]')
+
 if ! exists('g:simple_comments_SyntaxDictionary')
     let g:simple_comments_SyntaxDictionary = {}
 endif
@@ -53,7 +59,6 @@ delfunction s:AddVar
 unlet g:simple_comments_Remove
 unlet g:simple_comments_Comment
 
-" Called in the autocommands
 fun! s:SetCommentVars(comstr, name)
     exe "let b:simple_comments_".a:name."left       = substitute('".a:comstr."', '\\(.*\\)%s.*', '\\1', '')"
     exe "let b:simple_comments_".a:name."right      = substitute('".a:comstr."', '.*%s\\(.*\\)', '\\1', 'g')"
@@ -61,7 +66,18 @@ fun! s:SetCommentVars(comstr, name)
     exe "let b:simple_comments_".a:name."right_del  = substitute(b:simple_comments_".a:name."right, '\\s\\+', '', 'g')"
 endfun
 
+fun! s:SetSynComments()
+    let name = s:GetAltName()
+    exe "let b:simple_comments_left = b:simple_comments_".name .'left' 
+    exe "let b:simple_comments_right = b:simple_comments_".name .'right' 
+    exe "let b:simple_comments_left_del = b:simple_comments_".name .'left_del' 
+    exe "let b:simple_comments_right_del = b:simple_comments_".name .'right_del' 
+endfun
+
 fun! s:SetAllCommentVars()
+    if &commentstring == ''
+        setlocal commentstring=/*\ %s\ */
+    endif
     call s:SetCommentVars(&commentstring, '')
     " Do we use a syntax comment?
     if has_key(g:simple_comments_SyntaxDictionary, &filetype)
@@ -86,17 +102,14 @@ fun! s:GetAltName()
     return name
 endfun
 
-fun! s:SetSynComments()
-    let name = s:GetAltName()
-    exe "let b:simple_comments_left = b:simple_comments_".name .'left' 
-    exe "let b:simple_comments_right = b:simple_comments_".name .'right' 
-    exe "let b:simple_comments_left_del = b:simple_comments_".name .'left_del' 
-    exe "let b:simple_comments_right_del = b:simple_comments_".name .'right_del' 
-endfun
-
 fun! s:AddComment()
+    let g:sc = "AddComment"
     let line  = getline(".")
     if line =~ '^\s*$'
+        return
+    endif
+    if &filetype == ''
+        echo "simple_comments: The filetype is empty, don't know what to do."
         return
     endif
     if has_key(g:simple_comments_SyntaxDictionary, &filetype)
@@ -121,6 +134,10 @@ fun! s:DelComment()
     let line  = getline(".")
     if has_key(g:simple_comments_SyntaxDictionary, &filetype)
         call s:SetSynComments()
+    endif
+    if &filetype == ''
+        echo "simple_comments: The filetype is empty, don't know what to do."
+        return
     endif
     " Delete comments
     if stridx(line, b:simple_comments_left_del) != -1
@@ -158,10 +175,11 @@ fun! s:CommentRememberCursor(action) range
     call setpos('.', saveCursor)
 endfun
 
+command! -nargs=0 SimpleComments :call s:SetAllCommentVars()
+
 augroup COMMENTS
     autocmd!
-    autocmd FileType    * call s:SetAllCommentVars()
-    autocmd BufWinEnter * if has_key(g:simple_comments_SyntaxDictionary, &filetype) | call s:SetSynComments() | endif
+    autocmd BufWinEnter * :call s:SetAllCommentVars()
 augroup END
 
 let &cpoptions = s:savedCpo
